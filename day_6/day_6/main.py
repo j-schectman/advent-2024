@@ -9,6 +9,10 @@ def get_lines(path) -> list[str]:
 def process_day_6(path: str) -> int:
     lines = get_lines(path)
     game = Game(lines)
+    game.subscribe_to_advance(lambda pos, guard, _:
+        print(f'new_position {pos}, facing: {guard.facing}')
+        )
+
     game.run()
     return len(game.active_path)
 
@@ -22,9 +26,9 @@ def process_day_6_part_2(path: str) -> int:
 
 if __name__ == "__main__":
     # print(process_day_6('data/puzzle.txt'))
-    # print(process_day_6_part_2('data/puzzle.txt'))
+    print(process_day_6_part_2('data/puzzle.txt'))
     # help 1928
-    lines = get_lines('data/puzzle.txt')
-    print(part2(lines))
+    # lines = get_lines('data/puzzle.txt')
+    # print(part2(lines))
 
 

@@ -1,3 +1,4 @@
+import copy
 from typing import Optional
 from day_6.active_piece import ActivePiece
 from day_6.board import Board
@@ -66,6 +67,7 @@ class Game():
             current_piece = piece.piece
             current_position = piece.position
             requested_position = current_piece.move(current_position)
+
             can_move = self._can_move_space(requested_position)
             if not can_move:
                 current_piece.adjust_move()
@@ -79,7 +81,7 @@ class Game():
                 self.board.set(current_piece, piece.position)
 
             for fn in self.on_advance:
-                fn(piece.position, current_piece, self.board)
+                fn(copy.deepcopy(piece.position), current_piece, self.board)
 
         
         self.active_pieces = adjusted_pieces

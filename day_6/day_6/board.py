@@ -1,10 +1,8 @@
-from typing import TypeVar
 from day_6.game_piece import GamePiece
 from day_6.position import Position
 from day_6.space import Space
 
-T = TypeVar('T', bound=GamePiece)
-BoardType = list[list[T]]
+BoardType = list[list[GamePiece]]
 
 class Board():
     def __init__(self, height: int, width: int):

@@ -1,6 +1,8 @@
 from day_6.direction import Direction
 from day_6.game_piece import GamePiece, MovablePiece
 from day_6.position import Position
+import uuid
+
 
 def get_guard_direction(char: str) -> Direction:
     if char == '^':
@@ -20,9 +22,19 @@ class Guard(GamePiece, MovablePiece):
     def __init__(self, facing: Direction):
         super().__init__()
         self.facing = facing
+        self.id = uuid.uuid4()
 
     def __str__(self) -> str:
-        return 'G'
+        if self.facing == Direction.LEFT:
+            return '<'
+        if self.facing == Direction.RIGHT:
+            return '>'
+        if self.facing == Direction.UP:
+            return '^'
+        if self.facing == Direction.DOWN:
+            return 'v'
+        return 'g'
+
 
     def turn_90(self):
         if self.facing == Direction.LEFT:
