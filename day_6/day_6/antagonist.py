@@ -139,7 +139,6 @@ class Watcher():
         self.guard_tracker = Board(height, width)
         self._init_guard_tracker()
         self._in_loop = False
-        # print('in new watcher')
 
     def _init_guard_tracker(self):
         for y in range(self.guard_tracker.height):
@@ -159,11 +158,9 @@ class Watcher():
         return False
 
     def on_advance(self, new_position: Position, facing: Guard, _: Board):
-        # print(f'advance, {new_position}, facing: {facing}')
         if not self.guard_tracker.in_bounds(new_position):
             return 
         if self._detect_loop(new_position, facing.facing):
-            # print(self.guard_tracker)
             self._in_loop = True
             return
         spy_space = self.guard_tracker.get(new_position)
