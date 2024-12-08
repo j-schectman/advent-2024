@@ -36,7 +36,6 @@ def can_equate(equation: tuple[int, list[int]], operators: list[Callable[[int,in
 
     return 0
 
-
 def process_part_1(path: str) -> int:
     input = handle_input(path)
     return sum(can_equate(equation, [mult, add]) for equation in input)
