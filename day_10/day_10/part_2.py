@@ -40,18 +40,13 @@ def find_zeros(graph: Graph) -> set[Point]:
     return result
 
 def traverse(root: Point, graph: Graph) -> int:
-    visited: set[Point] = set()
     stack: list[Point] = [root]
     nine_count = 0
     while(len(stack) > 0):
         next = stack.pop()
-        if next in visited:
-            continue
-
         next_value = g_get(graph, next)
         if next_value == 9:
             nine_count += 1
-            visited.add(next)
             continue
 
         candidate_nodes = get_neighbors(next, graph)
@@ -60,7 +55,7 @@ def traverse(root: Point, graph: Graph) -> int:
 
     return nine_count
 
-def process_part_1(path: str) -> int:
+def process_part_2(path: str) -> int:
     graph = injest_data(path)
     nines = 0
     for root in find_zeros(graph):
