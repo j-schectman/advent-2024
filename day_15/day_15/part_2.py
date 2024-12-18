@@ -98,15 +98,6 @@ def resize_warehouse(ware: Warehouse) -> Warehouse:
 
     return new_house
 
-def get_partner_crate(ware: Warehouse, crate_side: Point) -> Point:
-    cur_crate = get_object(ware, crate_side)
-    if cur_crate == LEFT_CRATE:
-        return add_dir(crate_side, Direction.right)
-    if cur_crate == RIGHT_CRATE:
-        return add_dir(crate_side, Direction.left)
-
-    raise ValueError('invalid crate half')
-
 def build_crate(ware: Warehouse, crate_side: Point) -> Crate:
     cur_crate = get_object(ware, crate_side)
     if cur_crate == LEFT_CRATE:
@@ -124,22 +115,22 @@ def move_left(ware: Warehouse, points: list[Point]):
     # Move all to the left, set the LAST item to be floor
     if next_object == FLOOR:
         for p in s:
-            mp = get_object(ware, add_dir(p, Direction.left))
-            set_object(ware, next_point, mp)
+            mp = get_object(ware, p)
+            set_object(ware, add_dir(p, Direction.left), mp)
         set_object(ware, s[len(s) - 1], FLOOR)
         return 
 
     if next_object == WALL:
         return
 
-    if next_object == CRATE:
+    if next_object in DCRATE:
         move_left(ware, build_crate(ware, next_point))
         check = get_object(ware, next_point)
         # if it's open floor, gucci to change
         if check == FLOOR:
             for p in s:
-                mp = get_object(ware, add_dir(p, Direction.left))
-                set_object(ware, next_point, mp)
+                mp = get_object(ware,p)
+                set_object(ware, add_dir(p, Direction.left), mp)
             set_object(ware, s[len(s) - 1], FLOOR)
 
 
@@ -151,22 +142,22 @@ def move_right(ware: Warehouse, points: list[Point]):
     # Move all to the left, set the LAST item to be floor
     if next_object == FLOOR:
         for p in s:
-            mp = get_object(ware, add_dir(p, Direction.left))
-            set_object(ware, next_point, mp)
+            mp = get_object(ware, p)
+            set_object(ware, add_dir(p, Direction.right), mp)
         set_object(ware, s[len(s) - 1], FLOOR)
         return 
 
     if next_object == WALL:
         return
 
-    if next_object == CRATE:
-        move_left(ware, build_crate(ware, next_point))
+    if next_object in DCRATE:
+        move_right(ware, build_crate(ware, next_point))
         check = get_object(ware, next_point)
         # if it's open floor, gucci to change
         if check == FLOOR:
             for p in s:
-                mp = get_object(ware, add_dir(p, Direction.left))
-                set_object(ware, next_point, mp)
+                mp = get_object(ware, p)
+                set_object(ware, add_dir(p, Direction.right), mp)
             set_object(ware, s[len(s) - 1], FLOOR)
 
 
@@ -186,6 +177,10 @@ def move_objects(ware: Warehouse, points: list[Point], dir: Direction):
 
     next_points: list[Point] = []
     for point in points:
+        co = get_object(ware, point)
+        # don't need to move floor
+        if co == FLOOR:
+            continue
         next_point = add_dir(point, dir)
         if not in_warehouse(ware, next_point):
             return 
@@ -197,51 +192,61 @@ def move_objects(ware: Warehouse, points: list[Point], dir: Direction):
         else:
             next_points.append(next_point)
 
-    # try moving the next set of objects
-    move_objects(ware, next_points, dir)
+    
+    if len(next_points) != 0:
+        # try moving the next set of objects
+        move_objects(ware, next_points, dir)
 
-    # after moving, ALL points must be open
-    for next_point in next_points:
-        ob = get_object(ware, next_point)
-        if ob != FLOOR:
-            return
-    # Now move it
+        # after moving, ALL points must be open
+        for next_point in next_points:
+            ob = get_object(ware, next_point)
+            if ob != FLOOR:
+                return
+    # Now move it unless it's a floor
     for point in points:
         np = add_dir(point, dir)
         co = get_object(ware, point)
+        if co == FLOOR:
+            continue
         set_object(ware, np, co)
         set_object(ware, point, FLOOR)
 
 def move_robot(ware: Warehouse, robot: Point, dir: Direction):
     move_objects(ware, [robot], dir)
     
-def get_crates(ware: Warehouse) -> set[Point]:
-    res: set[Point] = set()
+def get_crates(ware: Warehouse) -> set[tuple[Point, Point]]:
+    res: set[tuple[Point, Point]] = set()
     for y, row in enumerate(ware):
         for x, c in enumerate(row):
-            if c == CRATE:
-                res.add((x,y))
+            if c in DCRATE:
+                a,b = sorted(build_crate(ware, (x,y)))
+                res.add((a,b))
     return res
 
 def process_part_2(path: str) -> int:
     ware, moves = process_input(path)
-    robot = get_robot_location(ware)
     rware = resize_warehouse(ware)
+    robot = get_robot_location(rware)
 
-    print('starting warehouse')
-    for row in rware:
-        print(''.join(row))
+    # print('starting warehouse')
+    # for row in rware:
+        # print(''.join(row))
     for move in moves:
         dir = get_move_direction(move)
+        # print('moving', dir, robot)
         move_robot(rware, robot, dir)
         robot = get_robot_location(rware)
-        print('moved')
-        for row in rware:
-            print(''.join(row))
+        # print('moved')
+        # for row in rware:
+            # print(''.join(row))
+    print('final warehouse')
+    for row in rware:
+        print(''.join(row))
     crates = get_crates(rware)
     total = 0
     for crate in crates:
-        x, y = crate
-        total += x + y*100
+        a, _ = crate
+        ax, ay = a
+        total += ax + ay*100
 
     return total
