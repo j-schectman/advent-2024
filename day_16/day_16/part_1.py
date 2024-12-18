@@ -97,11 +97,6 @@ def add_dir(point: Point, dir: Point) -> Point:
     dx, dy = dir
     return x+dx, y+dy
 
-def add_point_to_edge(p1: Point, p2: Point, possible_edges: list[set[Point]]):
-    for edge in possible_edges:
-        if p1 in edge:
-            edge.add(p2)
-
 def print_path(graph: Graph, path: list[Move]):
     g = copy.deepcopy(graph)
     for b in path:
@@ -111,24 +106,6 @@ def print_path(graph: Graph, path: list[Move]):
         g[x,y] = f
         p = b
     print(g)
-
-
-def calc_value(path: list[Move]) -> int:
-    prev: None | Move = None
-    c = 0
-    for p in path:
-        if prev == None:
-            prev = p
-            continue
-        _, dir = p
-        _, odir = prev
-        if odir != dir:
-            c+= 1000
-        else:
-            c+=1
-        prev = p
-    return c
-
 
 def build_path(edges: dict[Move, Move | None], end: Move) -> list[Move]:
     path = []
